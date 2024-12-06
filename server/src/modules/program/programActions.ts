@@ -1,6 +1,15 @@
 // Some data to make the trick
 
-const programs = [
+interface Program {
+  id: number;
+  title: string;
+  synopsis: string;
+  poster: string;
+  country: string;
+  year: number;
+}
+
+const programs: Program[] = [
   {
     id: 1,
     title: "The Good Place",
@@ -28,9 +37,28 @@ const programs = [
 import type { RequestHandler } from "express";
 
 const browse: RequestHandler = (req, res) => {
-  res.json(programs);
+  if (req.query.q) {
+    const filteredPrograms = programs.filter((program) =>
+      program.synopsis.includes(req.query.q as string),
+    );
+
+    res.json(filteredPrograms);
+  } else {
+    res.json(programs);
+  }
+};
+
+const read: RequestHandler = (req, res) => {
+  const parseId = Number.parseInt(req.params.id);
+  const program = programs.find((program) => program.id === parseId);
+
+  if (program) {
+    res.json(program);
+  } else {
+    res.sendStatus(404);
+  }
 };
 
 // Export it to import it somewhere else
 
-export default { browse };
+export default { browse, read };
